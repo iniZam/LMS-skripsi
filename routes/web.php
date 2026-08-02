@@ -26,7 +26,7 @@ Route::middleware('guest')->group(function () {
 // ---------------------------------------------------------------------
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+    Route::post('/meetings/{meeting}/ask-ai', [App\Http\Controllers\MeetingController::class, 'askAiTutor'])->name('meetings.ask-ai');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Classes (Mata Pelajaran)

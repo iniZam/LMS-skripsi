@@ -9,7 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 class MeetingController extends Controller
 {
     use FormatsFileSize;
@@ -153,5 +154,41 @@ class MeetingController extends Controller
     {
         $user = $request->user();
         abort_unless($user->isAdmin() || ($user->isTeacher() && $class->teacher_id === $user->id), 403);
+    }
+
+   
+
+    public function askAiTutor(Request $request, \App\Models\Meeting $meeting)
+    {
+        $request->validate(['question' => 'required|string|max:500']);
+        $context = "Materi: {$meeting->title}. Deskripsi: {$meeting->description}";
+
+        try {
+            // Ganti URL dengan IP yang sesuai jika menggunakan Proxmox LXC/Docker
+            $response = Http::timeout(10)->post('http://127.0.0.1:5000/api/ai-tutor', [
+                'context' => $context,
+                'question' => $request->question,
+            ]);
+
+            if ($response->successful()) {
+                return response()->json([
+                    'answer' => $response->json('answer')
+                ]);
+            }
+
+            // Jika Flask merespons dengan error (misal 500 dari Python)
+            return response()->json([
+                'answer' => 'Asisten AI mengalami kendala internal saat memproses.'
+            ], $response->status());
+
+        } catch (\Exception $e) {
+            // Catat error aslinya ke laravel.log agar mudah di-debug
+            Log::error('Koneksi ke AI Gagal: ' . $e->getMessage());
+
+            // Kembalikan JSON yang rapi ke frontend
+            return response()->json([
+                'answer' => 'Gagal terhubung ke layanan AI. Pastikan server Python menyala.'
+            ], 503); // 503 Service Unavailable
+        }
     }
 }
