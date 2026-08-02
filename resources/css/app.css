@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens for the LMS. Deliberately not the generic
+ * "cream + terracotta" or "dark + acid-green" AI-default palettes:
+ * an academic ink-navy + ledger-gold pairing that reads as a gradebook,
+ * paired with Lexend (headings) for calm, rounded legibility and
+ * Inter (body) for dense tabular/administrative content.
+ */
+@theme {
+  --font-display: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink-50: #EEF1F8;
+  --color-ink-100: #DBE1F0;
+  --color-ink-200: #B7C1DE;
+  --color-ink-400: #4A5A85;
+  --color-ink-600: #2B3A63;
+  --color-ink-700: #1E2A4A;
+  --color-ink-800: #172140;
+  --color-ink-900: #121A30;
+
+  --color-gold-100: #F3E7D0;
+  --color-gold-400: #DAB567;
+  --color-gold-500: #C9973F;
+  --color-gold-600: #A97B2C;
+
+  --color-mint-500: #2F855A;
+  --color-mint-100: #DDF0E6;
+
+  --color-rose-500: #C53030;
+  --color-rose-100: #FBE1E1;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #F6F7FB;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+}
+
+/* Ledger-tab accent used on class/meeting cards throughout the app */
+.ledger-card {
+  border-left-width: 6px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-ink-200);
+  border-radius: 9999px;
+}
