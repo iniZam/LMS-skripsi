@@ -55,13 +55,8 @@ class DashboardController extends Controller
     {
         $enrolled = $user->enrolledClasses()->withCount('meetings')->get();
 
-        $availableClasses = ClassRoom::where('status', ClassRoom::STATUS_REGISTRATION)
-            ->whereDoesntHave('students', fn ($q) => $q->where('student_id', $user->id))
-            ->withCount('meetings')
-            ->get();
-
         $mySubmissions = $user->submissions()->with('meeting.classRoom')->latest('submitted_at')->take(5)->get();
 
-        return view('dashboard.student', compact('enrolled', 'availableClasses', 'mySubmissions'));
+        return view('dashboard.student', compact('enrolled', 'mySubmissions'));
     }
 }

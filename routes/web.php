@@ -36,8 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/classes/{class}', [ClassRoomController::class, 'show'])->name('classes.show');
     Route::get('/classes/{class}/edit', [ClassRoomController::class, 'edit'])->name('classes.edit');
     Route::put('/classes/{class}', [ClassRoomController::class, 'update'])->name('classes.update');
-    Route::post('/classes/{class}/enroll', [ClassRoomController::class, 'enroll'])
-        ->middleware('role:student')->name('classes.enroll');
+    Route::post('/classes/{class}/students', [ClassRoomController::class, 'addStudent'])
+        ->middleware('role:admin')->name('classes.addStudent');
+    Route::delete('/classes/{class}/students/{student}', [ClassRoomController::class, 'removeStudent'])
+        ->middleware('role:admin')->name('classes.removeStudent');
 
     // Meetings (nested under a class for create/store, flat elsewhere)
     Route::get('/classes/{class}/meetings/create', [MeetingController::class, 'create'])

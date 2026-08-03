@@ -34,18 +34,13 @@ class ClassRoomController extends Controller
             return view('classes.index', ['classes' => $classes]);
         }
 
-        // Student: split into "my classes" and classes open for registration.
+        // Student: only the Mata Pelajaran they've been enrolled into by an
+        // admin. There is no self-service enrollment — see addStudent().
         $myClasses = $user->enrolledClasses()->with('teacher')->withCount('meetings')->get();
-        $availableClasses = ClassRoom::where('status', ClassRoom::STATUS_REGISTRATION)
-            ->whereDoesntHave('students', fn ($q) => $q->where('student_id', $user->id))
-            ->with('teacher')
-            ->withCount('meetings')
-            ->get();
 
         return view('classes.index', [
             'classes' => null,
             'myClasses' => $myClasses,
-            'availableClasses' => $availableClasses,
         ]);
     }
 
@@ -92,20 +87,28 @@ class ClassRoomController extends Controller
     public function show(Request $request, ClassRoom $class): View
     {
         $user = $request->user();
-        $isEnrolled = false;
 
         if ($user->isStudent()) {
-            $isEnrolled = $class->students()->where('student_id', $user->id)->exists();
-            // Students may preview an open-for-registration class before joining;
-            // otherwise the class must already be joined to view it.
-            abort_unless($isEnrolled || $class->status === ClassRoom::STATUS_REGISTRATION, 403, 'Anda belum terdaftar di kelas ini.');
+            // Students only ever see a Mata Pelajaran they've already been
+            // enrolled into by an admin — no self-service preview/enroll.
+            abort_unless($class->students()->where('student_id', $user->id)->exists(), 403, 'Anda belum terdaftar di kelas ini.');
         } elseif ($user->isTeacher()) {
             abort_unless($class->teacher_id === $user->id, 403);
         }
 
         $class->load(['teacher', 'students', 'meetings.materials', 'meetings.submissions']);
 
-        return view('classes.show', compact('class', 'isEnrolled'));
+        $availableStudents = null;
+        if ($user->isAdmin()) {
+            $enrolledIds = $class->students->pluck('id');
+            $availableStudents = User::where('role', User::ROLE_STUDENT)
+                ->whereNotIn('id', $enrolledIds)
+                ->with('kelas')
+                ->orderBy('name')
+                ->get();
+        }
+
+        return view('classes.show', compact('class', 'availableStudents'));
     }
 
     public function edit(Request $request, ClassRoom $class): View
@@ -144,22 +147,44 @@ class ClassRoomController extends Controller
         return redirect()->route('classes.show', $class)->with('status', 'Data kelas berhasil diperbarui.');
     }
 
-    public function enroll(Request $request, ClassRoom $class): RedirectResponse
+    /**
+     * Admin-only: add a student to this Mata Pelajaran's roster.
+     * There is no student-facing self-enrollment anymore.
+     */
+    public function addStudent(Request $request, ClassRoom $class): RedirectResponse
     {
-        $user = $request->user();
-        abort_unless($user->isStudent(), 403);
+        abort_unless($request->user()->isAdmin(), 403);
 
         if ($class->status === ClassRoom::STATUS_COMPLETED) {
-            return back()->withErrors(['enroll' => 'Kelas ini sudah selesai dan tidak menerima pendaftaran.']);
+            return back()->withErrors(['student' => 'Tidak dapat menambahkan siswa ke kelas yang sudah selesai.']);
         }
 
-        if ($class->students()->where('student_id', $user->id)->exists()) {
-            return back()->withErrors(['enroll' => 'Anda sudah terdaftar di kelas ini.']);
+        $data = $request->validate([
+            'student_id' => ['required', 'exists:users,id'],
+        ]);
+
+        $student = User::where('id', $data['student_id'])->where('role', User::ROLE_STUDENT)->first();
+        abort_unless($student, 404);
+
+        if ($class->students()->where('student_id', $student->id)->exists()) {
+            return back()->withErrors(['student' => "{$student->name} sudah terdaftar di kelas ini."]);
         }
 
-        $class->students()->attach($user->id);
+        $class->students()->attach($student->id);
 
-        return redirect()->route('classes.show', $class)->with('status', "Berhasil mendaftar ke kelas {$class->title}!");
+        return redirect()->route('classes.show', $class)->with('status', "{$student->name} berhasil ditambahkan ke {$class->title}.");
+    }
+
+    /**
+     * Admin-only: remove a student from this Mata Pelajaran's roster.
+     */
+    public function removeStudent(Request $request, ClassRoom $class, User $student): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        $class->students()->detach($student->id);
+
+        return back()->with('status', "{$student->name} dikeluarkan dari {$class->title}.");
     }
 
     private function authorizeManage(Request $request, ClassRoom $class): void
