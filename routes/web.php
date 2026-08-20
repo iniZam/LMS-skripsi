@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn () => redirect()->route('dashboard'));
 
 // ---------------------------------------------------------------------
-// Guest-only routes. There is no self-registration: every account
-// (admin, teacher, and student alike) is created by an admin.
+// Guest-only routes.
 // ---------------------------------------------------------------------
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -26,8 +25,21 @@ Route::middleware('guest')->group(function () {
 // ---------------------------------------------------------------------
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::post('/meetings/{meeting}/ask-ai', [App\Http\Controllers\MeetingController::class, 'askAiTutor'])->name('meetings.ask-ai');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // === Rute AI & Absensi (Pindahan) ===
+    Route::post('/meetings/{meeting}/ask-ai', [App\Http\Controllers\MeetingController::class, 'askAiTutor'])->name('meetings.ask-ai');
+    
+    // Pastikan ini ditambahkan middleware role:admin,teacher agar guru bisa akses
+    Route::post('/classes/{class}/ask-ai-designer', [App\Http\Controllers\MeetingController::class, 'askAiDesigner'])
+        ->middleware('role:admin,teacher')->name('classes.ask-ai-designer');
+        
+    Route::post('/meetings/{meeting}/attendance', [App\Http\Controllers\MeetingController::class, 'saveAttendance'])
+        ->middleware('role:admin,teacher')->name('meetings.attendance');
+        
+    Route::get('/meetings/{meeting}/attendance/export', [App\Http\Controllers\MeetingController::class, 'exportAttendance'])
+        ->middleware('role:admin,teacher')->name('meetings.attendance.export');
+    // ===================================
 
     // Classes (Mata Pelajaran)
     Route::get('/classes', [ClassRoomController::class, 'index'])->name('classes.index');
@@ -41,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/classes/{class}/students/{student}', [ClassRoomController::class, 'removeStudent'])
         ->middleware('role:admin')->name('classes.removeStudent');
 
-    // Meetings (nested under a class for create/store, flat elsewhere)
+    // Meetings
     Route::get('/classes/{class}/meetings/create', [MeetingController::class, 'create'])
         ->middleware('role:admin,teacher')->name('meetings.create');
     Route::post('/classes/{class}/meetings', [MeetingController::class, 'store'])
@@ -68,7 +80,7 @@ Route::middleware('auth')->group(function () {
 
     // Admin only
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        // User management (teacher & student accounts — no self-registration)
+        // User management
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users/teacher', [UserController::class, 'storeTeacher'])->name('users.storeTeacher');
         Route::post('/users/student', [UserController::class, 'storeStudent'])->name('users.storeStudent');

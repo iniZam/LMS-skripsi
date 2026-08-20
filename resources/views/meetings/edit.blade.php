@@ -89,4 +89,34 @@
             </div>
         </form>
     </div>
+
+    <!-- WIDGET AI DESIGNER -->
+<div class="mt-8 bg-white rounded-xl border border-ink-100 overflow-hidden flex flex-col h-[400px] shadow-sm">
+    <div class="bg-ink-900 text-white px-5 py-3 flex items-center gap-3">
+        <span class="w-7 h-7 rounded bg-gold-500 text-ink-900 flex items-center justify-center font-display font-semibold text-xs">AI</span>
+        <div>
+            <h3 class="font-display font-medium text-sm">Asisten Perancang Materi AI</h3>
+            <p class="text-[10px] text-ink-200 mt-0.5">Diskusikan ide judul materi dan tugas di sini</p>
+        </div>
+    </div>
+    
+    <div id="ai-chat-history" class="flex-1 p-5 overflow-y-auto space-y-4 bg-ink-50/40">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 shrink-0 rounded-full bg-ink-100 flex items-center justify-center text-ink-600 text-xs font-bold font-display">AI</div>
+            <div class="bg-white border border-ink-100 rounded-2xl rounded-tl-none px-4 py-2.5 text-sm text-ink-700 shadow-sm max-w-[85%]">
+                Halo! Butuh inspirasi materi atau tugas untuk kelas <strong>{{ $class->title }}</strong>?
+            </div>
+        </div>
+    </div>
+
+    <div class="p-3 bg-white border-t border-ink-100">
+        <!-- Perhatikan data-url menggunakan rute perancang materi -->
+        <form id="ai-chat-form" data-url="{{ route('classes.ask-ai-designer', $class) }}" class="flex items-center gap-2">
+            @csrf
+            <input type="text" id="ai-chat-input" required placeholder="Contoh: Buatkan ide tugas tentang..." autocomplete="off"
+                   class="flex-1 rounded-lg border border-ink-100 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400">
+            <button type="submit" id="ai-chat-submit" class="bg-gold-500 hover:bg-gold-600 text-ink-900 px-4 py-2 rounded-lg text-sm font-medium">Kirim</button>
+        </form>
+    </div>
+</div>
 @endsection

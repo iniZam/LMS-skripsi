@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Attendance;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 class MeetingController extends Controller
 {
     use FormatsFileSize;
@@ -158,37 +160,81 @@ class MeetingController extends Controller
 
    
 
-    public function askAiTutor(Request $request, \App\Models\Meeting $meeting)
+    public function saveAttendance(Request $request, Meeting $meeting)
     {
-        $request->validate(['question' => 'required|string|max:500']);
-        $context = "Materi: {$meeting->title}. Deskripsi: {$meeting->description}";
-
-        try {
-            // Ganti URL dengan IP yang sesuai jika menggunakan Proxmox LXC/Docker
-            $response = Http::timeout(10)->post('http://127.0.0.1:5000/api/ai-tutor', [
-                'context' => $context,
-                'question' => $request->question,
-            ]);
-
-            if ($response->successful()) {
-                return response()->json([
-                    'answer' => $response->json('answer')
-                ]);
-            }
-
-            // Jika Flask merespons dengan error (misal 500 dari Python)
-            return response()->json([
-                'answer' => 'Asisten AI mengalami kendala internal saat memproses.'
-            ], $response->status());
-
-        } catch (\Exception $e) {
-            // Catat error aslinya ke laravel.log agar mudah di-debug
-            Log::error('Koneksi ke AI Gagal: ' . $e->getMessage());
-
-            // Kembalikan JSON yang rapi ke frontend
-            return response()->json([
-                'answer' => 'Gagal terhubung ke layanan AI. Pastikan server Python menyala.'
-            ], 503); // 503 Service Unavailable
-        }
+    abort_unless($request->user()->isTeacher() || $request->user()->isAdmin(), 403);
+    
+    $attendances = $request->input('attendances', []);
+    foreach ($attendances as $studentId => $status) {
+        Attendance::updateOrCreate(
+            ['meeting_id' => $meeting->id, 'student_id' => $studentId],
+            ['status' => $status]
+        );
     }
-}
+    return back()->with('status', 'Data absensi berhasil disimpan.');
+    }
+
+    public function exportAttendance(Meeting $meeting)
+    {
+    abort_unless(auth()->user()->isTeacher() || auth()->user()->isAdmin(), 403);
+
+    $fileName = "Absensi_Pertemuan_{$meeting->meeting_number}_{$meeting->classRoom->code}.csv";
+    $attendances = Attendance::with('student')->where('meeting_id', $meeting->id)->get();
+
+    $headers = [
+        "Content-type"        => "text/csv",
+        "Content-Disposition" => "attachment; filename=$fileName",
+        "Pragma"              => "no-cache",
+        "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+        "Expires"             => "0"
+    ];
+
+    $callback = function() use($attendances) {
+        $file = fopen('php://output', 'w');
+        // Header kolom Excel
+        fputcsv($file, ['No', 'Nama Siswa', 'NISN', 'Status Kehadiran']);
+
+        $row = 1;
+        foreach ($attendances as $att) {
+            fputcsv($file, [
+                $row++,
+                $att->student->name,
+                $att->student->nip_nis,
+                strtoupper($att->status)
+            ]);
+        }
+        fclose($file);
+    };
+
+    return new StreamedResponse($callback, 200, $headers);
+    }
+    public function askAiDesigner(Request $request, \App\Models\ClassRoom $class)
+    {
+    abort_unless($request->user()->isTeacher(), 403);
+    $request->validate(['question' => 'required|string|max:500']);
+
+    $ollamaModel = 'deepseek-coder:6.7b'; 
+    $systemPrompt = "Anda adalah Asisten AI Perancang Kurikulum untuk EduEduka LMS. "
+        . "Tugas Anda adalah membantu guru merancang judul, deskripsi materi, atau ide tugas "
+        . "untuk mata pelajaran '{$class->subject_category}' di kelas '{$class->title}'. "
+        . "Gunakan bahasa Indonesia yang profesional dan berikan ide yang terstruktur.";
+
+    try {
+        $response = Http::timeout(120)->post('http://127.0.0.1:11434/api/chat', [
+            'model' => $ollamaModel,
+            'messages' => [
+                ['role' => 'system', 'content' => $systemPrompt],
+                ['role' => 'user', 'content' => $request->question],
+            ],
+            'stream' => false,
+        ]);
+
+        if ($response->successful()) {
+            return response()->json(['answer' => $response->json()['message']['content'] ?? 'Maaf, gagal membuat respons.']);
+        }
+        return response()->json(['answer' => 'Gangguan teknis pada AI.'], 500);
+    } catch (\Exception $e) {
+        return response()->json(['answer' => 'AI sedang tidak bisa dihubungi.'], 500);
+    }
+    }
+    }

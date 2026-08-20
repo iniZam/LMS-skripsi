@@ -168,7 +168,7 @@
 
             <!-- Area Input Pesan -->
             <div class="p-3 bg-white border-t border-ink-100">
-                <form id="ai-chat-form" class="flex items-center gap-2" data-meeting-id="{{ $meeting->id }}">
+                <form id="ai-chat-form" data-url="{{ route('meetings.ask-ai', $meeting) }}" class="flex items-center gap-2">
                     @csrf
                     <input type="text" id="ai-chat-input" required placeholder="Ketik pertanyaanmu..." autocomplete="off"
                            class="flex-1 rounded-lg border border-ink-100 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400">
