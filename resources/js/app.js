@@ -55,7 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const question = chatInput.value.trim();
             if (!question) return;
             
-            const meetingId = chatForm.dataset.meetingId;
+            const actionUrl = chatForm.dataset.url;
+           
             const csrfToken = chatForm.querySelector('input[name="_token"]').value;
 
             // 1. Tampilkan pesan siswa di layar
@@ -69,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // 3. Kirim data ke backend Laravel melalui AJAX (Fetch API)
-                const response = await fetch(`/meetings/${meetingId}/ask-ai`, {
+                
+                const response = await fetch(actionUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

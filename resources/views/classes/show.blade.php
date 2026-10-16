@@ -35,8 +35,20 @@
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-display font-semibold text-ink-900">Pertemuan</h3>
                 @if ($user->isAdmin() || ($user->isTeacher() && $class->teacher_id === $user->id))
-                    <a href="{{ route('meetings.create', $class) }}" class="text-sm bg-ink-900 hover:bg-ink-700 text-white px-4 py-2 rounded-lg font-medium">+ Tambah Pertemuan</a>
-                @endif
+        <div class="mt-6 flex flex-wrap gap-3">
+            <a href="{{ route('meetings.create', $class) }}" class="bg-ink-900 hover:bg-ink-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
+                + Pertemuan Baru
+            </a>
+            
+            <!-- Tambahkan baris tombol rekap absensi & rapot ini -->
+            <a href="{{ route('classes.attendance-recap', $class) }}" class="bg-white hover:bg-ink-50 text-ink-700 border border-ink-200 text-sm font-medium px-4 py-2 rounded-lg transition flex items-center gap-2">
+                📋 Lihat Rekap Absensi
+            </a>
+            <a href="{{ route('classes.rapot', $class) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-sm font-medium px-4 py-2 rounded-lg transition flex items-center gap-2">
+                📊 Lihat Rapot Nilai
+            </a>
+        </div>
+    @endif
             </div>
 
             <div class="space-y-3">

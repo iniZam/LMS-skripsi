@@ -79,4 +79,8 @@ class Meeting extends Model
 
         return $videoId !== '' ? "https://www.youtube.com/embed/{$videoId}" : $url;
     }
+    public function quizzes()
+    {
+        return $this->hasMany(Quiz::class);
+    }
 }

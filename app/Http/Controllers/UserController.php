@@ -47,7 +47,7 @@ class UserController extends Controller
             'nip_nis' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $tempPassword = Str::password(10, symbols: false);
+        $tempPassword = "password";
 
         $teacher = User::create([
             'name' => $data['name'],
@@ -71,7 +71,7 @@ class UserController extends Controller
             'kelas_id' => ['required', 'exists:kelas,id'],
         ]);
 
-        $tempPassword = Str::password(10, symbols: false);
+        $tempPassword = "password";
 
         $student = User::create([
             'name' => $data['name'],

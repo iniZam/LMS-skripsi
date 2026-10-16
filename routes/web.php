@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn () => redirect()->route('dashboard'));
 
 // ---------------------------------------------------------------------
-// Guest-only routes. There is no self-registration: every account
-// (admin, teacher, and student alike) is created by an admin.
+// Guest-only routes.
 // ---------------------------------------------------------------------
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -26,8 +25,64 @@ Route::middleware('guest')->group(function () {
 // ---------------------------------------------------------------------
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::post('/meetings/{meeting}/ask-ai', [App\Http\Controllers\MeetingController::class, 'askAiTutor'])->name('meetings.ask-ai');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/ask-ai', [\App\Http\Controllers\DashboardController::class, 'askAi'])->name('dashboard.ask-ai');
+    
+    // Rute Ubah Password
+    Route::get('/profile/password', [\App\Http\Controllers\ProfileController::class, 'editPassword'])->name('password.edit');
+    Route::put('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('password.update');
+
+    // ==========================================
+    // DAFTAR & MANAJEMEN KUIS
+    // ==========================================
+    Route::get('/quizzes', [\App\Http\Controllers\QuizController::class, 'index'])->name('quizzes.index');
+
+    Route::middleware('role:admin,teacher')->group(function () {
+        Route::get('/meetings/{meeting}/quizzes/create', [\App\Http\Controllers\QuizController::class, 'create'])->name('quizzes.create');
+        Route::post('/meetings/{meeting}/quizzes', [\App\Http\Controllers\QuizController::class, 'store'])->name('quizzes.store');
+        
+        Route::get('/quizzes/{quiz}/manage', [\App\Http\Controllers\QuizController::class, 'manage'])->name('quizzes.manage');
+        Route::post('/quizzes/{quiz}/questions', [\App\Http\Controllers\QuizController::class, 'storeQuestion'])->name('questions.store');
+        Route::delete('/questions/{question}', [\App\Http\Controllers\QuizController::class, 'destroyQuestion'])->name('questions.destroy');
+    });
+
+    // ==========================================
+    // PENGERJAAN KUIS (SISWA)
+    // ==========================================
+    Route::get('/quizzes/info/{quiz}', [\App\Http\Controllers\QuizController::class, 'show'])->name('quizzes.show');
+    Route::post('/quizzes/{quiz}/start', [\App\Http\Controllers\QuizController::class, 'start'])->name('quizzes.start');
+    Route::get('/quizzes/{quiz}/take/{attempt}', [\App\Http\Controllers\QuizController::class, 'take'])->name('quizzes.take');
+    Route::post('/quizzes/{quiz}/submit/{attempt}', [\App\Http\Controllers\QuizController::class, 'submit'])->name('quizzes.submit');
+    Route::get('/quizzes/{quiz}/result/{attempt}', [\App\Http\Controllers\QuizController::class, 'result'])->name('quizzes.result');
+
+
+    // === Rute AI & Absensi ===
+    Route::post('/meetings/{meeting}/ask-ai', [App\Http\Controllers\MeetingController::class, 'askAiTutor'])->name('meetings.ask-ai');
+    
+    // Rute Rekap Absensi & Rapot (Guru & Admin)
+    Route::get('/rapot', [\App\Http\Controllers\ClassRoomController::class, 'rapotIndex'])
+        ->name('rapot.index');
+    Route::get('/classes/{class}/rapot', [\App\Http\Controllers\ClassRoomController::class, 'rapot'])
+        ->middleware('role:admin,teacher')->name('classes.rapot');
+    Route::get('/classes/{class}/rapot/export', [\App\Http\Controllers\ClassRoomController::class, 'exportRapot'])
+        ->middleware('role:admin,teacher')->name('classes.rapot.export');
+
+    Route::get('/classes/{class}/attendance-recap', [\App\Http\Controllers\ClassRoomController::class, 'attendanceRecap'])
+        ->middleware('role:admin,teacher')->name('classes.attendance-recap');
+    Route::get('/classes/{class}/attendance-recap/export', [\App\Http\Controllers\ClassRoomController::class, 'exportAttendanceRecap'])
+        ->middleware('role:admin,teacher')->name('classes.attendance-recap.export');
+    Route::post('/meetings/{meeting}/attendance/import', [App\Http\Controllers\MeetingController::class, 'importAttendance'])
+        ->middleware('role:admin,teacher')->name('meetings.attendance.import');
+
+    Route::post('/classes/{class}/ask-ai-designer', [App\Http\Controllers\MeetingController::class, 'askAiDesigner'])
+        ->middleware('role:admin,teacher')->name('classes.ask-ai-designer');
+        
+    Route::post('/meetings/{meeting}/attendance', [App\Http\Controllers\MeetingController::class, 'saveAttendance'])
+        ->middleware('role:admin,teacher')->name('meetings.attendance');
+        
+    Route::get('/meetings/{meeting}/attendance/export', [App\Http\Controllers\MeetingController::class, 'exportAttendance'])
+        ->middleware('role:admin,teacher')->name('meetings.attendance.export');
+    // ===================================
 
     // Classes (Mata Pelajaran)
     Route::get('/classes', [ClassRoomController::class, 'index'])->name('classes.index');
@@ -41,7 +96,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/classes/{class}/students/{student}', [ClassRoomController::class, 'removeStudent'])
         ->middleware('role:admin')->name('classes.removeStudent');
 
-    // Meetings (nested under a class for create/store, flat elsewhere)
+    // Meetings
     Route::get('/classes/{class}/meetings/create', [MeetingController::class, 'create'])
         ->middleware('role:admin,teacher')->name('meetings.create');
     Route::post('/classes/{class}/meetings', [MeetingController::class, 'store'])
@@ -68,7 +123,7 @@ Route::middleware('auth')->group(function () {
 
     // Admin only
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        // User management (teacher & student accounts — no self-registration)
+        // User management
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users/teacher', [UserController::class, 'storeTeacher'])->name('users.storeTeacher');
         Route::post('/users/student', [UserController::class, 'storeStudent'])->name('users.storeStudent');

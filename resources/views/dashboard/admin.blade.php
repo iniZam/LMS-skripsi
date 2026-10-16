@@ -3,6 +3,38 @@
 @section('title', 'Dashboard Admin')
 
 @section('content')
+    {{-- Kotak ucapan selamat datang --}}
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-ink-900 to-ink-700 text-white p-6 mb-6">
+        <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-gold-500/20"></div>
+        <div class="absolute right-16 -bottom-12 w-32 h-32 rounded-full bg-gold-500/10"></div>
+        <div class="relative">
+            <p class="text-xs font-medium text-gold-500 uppercase tracking-wider">LMS SMP Negeri 1 Lede</p>
+            <h2 class="font-display font-semibold text-2xl mt-1">Selamat datang, {{ auth()->user()->name }}! 👋</h2>
+            <p class="text-sm text-white/70 mt-1">Administrator Sistem</p>
+            <p class="text-sm text-white/80 mt-3 max-w-2xl">Pantau seluruh aktivitas pembelajaran, pengguna, dan kelas di SMP Negeri 1 Lede.</p>
+        </div>
+    </div>
+
+    @php
+        $attColor = $attendancePercent === null ? '#A0AEC0' : ($attendancePercent >= 80 ? '#2F855A' : ($attendancePercent >= 60 ? '#C9973F' : '#C53030'));
+    @endphp
+    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-ink-100 p-5 ledger-card" style="border-left-color: {{ $attColor }}">
+            <p class="text-xs text-ink-400">Kehadiran Siswa (Seluruh Sekolah)</p>
+            <p class="text-3xl font-display font-semibold text-ink-900 mt-1">
+                {{ $attendancePercent === null ? '-' : rtrim(rtrim(number_format($attendancePercent, 1, ',', ''), '0'), ',') . '%' }}
+            </p>
+            <div class="w-full h-2 bg-ink-50 rounded-full mt-3 overflow-hidden">
+                <div class="h-full rounded-full" style="width: {{ $attendancePercent ?? 0 }}%; background-color: {{ $attColor }}"></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-100 p-5 ledger-card" style="border-left-color: #C9973F">
+            <p class="text-xs text-ink-400">Total Kuis</p>
+            <p class="text-3xl font-display font-semibold text-ink-900 mt-1">{{ $totalQuizzes }}</p>
+            <p class="text-xs text-ink-400 mt-3">Kuis yang telah dibuat oleh seluruh pengajar</p>
+        </div>
+    </div>
+
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         @php
             $cards = [
