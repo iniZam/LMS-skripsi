@@ -7,11 +7,30 @@
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-ink-900 to-ink-700 text-white p-6 mb-6">
         <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-gold-500/20"></div>
         <div class="absolute right-16 -bottom-12 w-32 h-32 rounded-full bg-gold-500/10"></div>
-        <div class="relative">
-            <p class="text-xs font-medium text-gold-500 uppercase tracking-wider">LMS SMP Negeri 1 Lede</p>
-            <h2 class="font-display font-semibold text-2xl mt-1">Selamat datang, {{ auth()->user()->name }}! 👋</h2>
-            <p class="text-sm text-white/70 mt-1">Pengajar &middot; NIP: {{ auth()->user()->nip_nis }}</p>
-            <p class="text-sm text-white/80 mt-3 max-w-2xl">Terima kasih telah membimbing siswa-siswi SMP Negeri 1 Lede. Kelola materi, tugas, kuis, dan absensi kelas Anda dengan mudah di sini.</p>
+        <div class="relative flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <p class="text-xs font-medium text-gold-500 uppercase tracking-wider">LMS SMP Negeri 1 Lede</p>
+                <h2 class="font-display font-semibold text-2xl mt-1">Selamat datang, {{ auth()->user()->name }}! 👋</h2>
+                <p class="text-sm text-white/70 mt-1">Pengajar &middot; NIP: {{ auth()->user()->nip_nis }}</p>
+                <p class="text-sm text-white/80 mt-3 max-w-2xl">Terima kasih telah membimbing siswa-siswi SMP Negeri 1 Lede. Kelola materi, tugas, kuis, dan absensi kelas Anda dengan mudah di sini.</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-xl p-4 min-w-[230px]">
+                <p class="text-xs text-gold-400 font-medium uppercase">Presensi Hari Ini</p>
+                <p class="text-sm text-white font-medium mt-1">
+                    @if (isset($todayAttendance) && $todayAttendance->check_in_time)
+                        Datang: {{ substr($todayAttendance->check_in_time, 0, 5) }}
+                        &middot;
+                        Pulang: {{ $todayAttendance->check_out_time ? substr($todayAttendance->check_out_time, 0, 5) : '-' }}
+                    @elseif (isset($todayAttendance))
+                        Status: {{ strtoupper($todayAttendance->status) }}
+                    @else
+                        Belum Absen Datang
+                    @endif
+                </p>
+                <a href="{{ route('teacher.attendance.index') }}" class="mt-3 inline-flex items-center justify-center w-full bg-gold-500 hover:bg-gold-600 text-ink-900 font-display font-semibold text-xs px-3.5 py-2 rounded-lg transition">
+                    Buka Halaman Absensi Guru &rarr;
+                </a>
+            </div>
         </div>
     </div>
 

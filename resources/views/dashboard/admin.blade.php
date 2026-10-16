@@ -18,7 +18,7 @@
     @php
         $attColor = $attendancePercent === null ? '#A0AEC0' : ($attendancePercent >= 80 ? '#2F855A' : ($attendancePercent >= 60 ? '#C9973F' : '#C53030'));
     @endphp
-    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+    <div class="grid sm:grid-cols-3 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-ink-100 p-5 ledger-card" style="border-left-color: {{ $attColor }}">
             <p class="text-xs text-ink-400">Kehadiran Siswa (Seluruh Sekolah)</p>
             <p class="text-3xl font-display font-semibold text-ink-900 mt-1">
@@ -27,6 +27,14 @@
             <div class="w-full h-2 bg-ink-50 rounded-full mt-3 overflow-hidden">
                 <div class="h-full rounded-full" style="width: {{ $attendancePercent ?? 0 }}%; background-color: {{ $attColor }}"></div>
             </div>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-100 p-5 ledger-card" style="border-left-color: #2F855A">
+            <div class="flex items-center justify-between">
+                <p class="text-xs text-ink-400">Kehadiran Guru Hari Ini</p>
+                <a href="{{ route('admin.teacher-attendance.index') }}" class="text-xs text-gold-600 font-medium hover:underline">Rekap &rarr;</a>
+            </div>
+            <p class="text-3xl font-display font-semibold text-ink-900 mt-1">{{ $teacherTodayHadir ?? 0 }} <span class="text-sm font-normal text-ink-400">/ {{ $stats['totalTeachers'] }} guru</span></p>
+            <p class="text-xs text-ink-400 mt-3">Sudah melakukan absen datang hari ini</p>
         </div>
         <div class="bg-white rounded-xl border border-ink-100 p-5 ledger-card" style="border-left-color: #C9973F">
             <p class="text-xs text-ink-400">Total Kuis</p>

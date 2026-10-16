@@ -19,7 +19,7 @@
 | No | Nama Guru | Email | NIP | Mata Pelajaran Diampu | Kata Sandi |
 |---|---|---|---|---|---|
 | 1 | Adilas, S.Pd | `adilas@sekolah.com` | 19838844037492 | Prakarya - IX A, Prakarya - IX B, Prakarya - IX C | `password` |
-| 2 | Andi Wijaya, S.Pd. | `andi.wijaya@smpcendekiabangsa.sch.id` | NIP.198711052012011003 | Bahasa Indonesia - Kelas 9A | `password` |
+| 2 | Andi Wijaya, S.Pd. | `andi.wijaya@smpcendekziabangsa.sch.id` | NIP.198711052012011003 | Bahasa Indonesia - Kelas 9A | `password` |
 | 3 | Budi Santoso, S.Pd. | `budi.santoso@smpcendekiabangsa.sch.id` | NIP.198504122010121001 | Matematika - Kelas 7A | `password` |
 | 4 | Hamsa Abusaru, S.Pi | `hamsa-abusaru@sekolah.com` | 19266688026279 | Prakarya - VIII A, Prakarya - VIII B, Prakarya - VIII C | `password` |
 | 5 | Ishak Barunggu, S.Pd | `ishak-barunggu@sekolah.com` | 19215572796381 | PKn - IX A, PKn - IX B, PKn - IX C | `password` |

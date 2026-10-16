@@ -108,4 +108,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Kelas::class, 'wali_kelas_id');
     }
+
+    /** Daily attendance records for this teacher (role = teacher). */
+    public function teacherAttendances(): HasMany
+    {
+        return $this->hasMany(TeacherAttendance::class, 'teacher_id');
+    }
 }
+

@@ -7,6 +7,7 @@ use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\TeacherAttendanceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,15 @@ Route::middleware('auth')->group(function () {
     // Rute Ubah Password
     Route::get('/profile/password', [\App\Http\Controllers\ProfileController::class, 'editPassword'])->name('password.edit');
     Route::put('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('password.update');
+
+    // ==========================================
+    // ABSENSI GURU (PENGAJAR)
+    // ==========================================
+    Route::middleware('role:teacher')->prefix('teacher-attendance')->name('teacher.attendance.')->group(function () {
+        Route::get('/', [TeacherAttendanceController::class, 'index'])->name('index');
+        Route::post('/check-in', [TeacherAttendanceController::class, 'checkIn'])->name('check-in');
+        Route::post('/check-out', [TeacherAttendanceController::class, 'checkOut'])->name('check-out');
+    });
 
     // ==========================================
     // DAFTAR & MANAJEMEN KUIS
@@ -134,5 +144,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/kelas', [KelasController::class, 'store'])->name('kelas.store');
         Route::put('/kelas/{kelas}', [KelasController::class, 'update'])->name('kelas.update');
         Route::delete('/kelas/{kelas}', [KelasController::class, 'destroy'])->name('kelas.destroy');
+
+        // Rekap Absensi Guru
+        Route::get('/teacher-attendance', [TeacherAttendanceController::class, 'adminRecap'])->name('teacher-attendance.index');
+        Route::post('/teacher-attendance', [TeacherAttendanceController::class, 'adminStoreOrUpdate'])->name('teacher-attendance.store');
+        Route::get('/teacher-attendance/export', [TeacherAttendanceController::class, 'exportRecap'])->name('teacher-attendance.export');
     });
 });

@@ -35,7 +35,15 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
                 {{ $role === 'student' ? 'Rapot Saya' : 'Rapot & Rekap Nilai' }}
             </a>
+            @if ($role === 'teacher')
+                <a href="{{ route('teacher.attendance.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('teacher.attendance.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span> Absensi Guru
+                </a>
+            @endif
             @if ($role === 'admin')
+                <a href="{{ route('admin.teacher-attendance.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.teacher-attendance.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span> Rekap Absensi Guru
+                </a>
                 <a href="{{ route('admin.kelas.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.kelas.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
                     <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span> Kelas &amp; Wali Kelas
                 </a>

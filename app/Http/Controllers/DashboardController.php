@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\Meeting; // 1. Menambahkan import Meeting
 use App\Models\Attendance;
 use App\Models\Quiz;
+use App\Models\TeacherAttendance;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -47,7 +49,10 @@ class DashboardController extends Controller
         $attendancePercent = $this->attendancePercent(Attendance::query());
         $totalQuizzes = Quiz::count();
 
-        return view('dashboard.admin', compact('stats', 'classes', 'attendancePercent', 'totalQuizzes'));
+        $today = Carbon::now('Asia/Makassar')->toDateString();
+        $teacherTodayHadir = TeacherAttendance::whereDate('date', $today)->where('status', 'hadir')->count();
+
+        return view('dashboard.admin', compact('stats', 'classes', 'attendancePercent', 'totalQuizzes', 'teacherTodayHadir'));
     }
 
     private function teacher(User $user): View
@@ -64,7 +69,10 @@ class DashboardController extends Controller
 
         $totalQuizzes = Quiz::whereIn('meeting_id', $meetingIds)->count();
 
-        return view('dashboard.teacher', compact('classes', 'pendingGrading', 'attendancePercent', 'totalQuizzes'));
+        $today = Carbon::now('Asia/Makassar')->toDateString();
+        $todayAttendance = TeacherAttendance::where('teacher_id', $user->id)->whereDate('date', $today)->first();
+
+        return view('dashboard.teacher', compact('classes', 'pendingGrading', 'attendancePercent', 'totalQuizzes', 'todayAttendance'));
     }
 
     private function student(User $user): View
