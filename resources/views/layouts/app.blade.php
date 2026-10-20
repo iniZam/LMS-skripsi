@@ -19,38 +19,83 @@
             <span class="font-display font-semibold text-white">EduEduka LMS</span>
         </div>
 
-        <nav class="flex-1 px-3 py-5 space-y-1 text-sm">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
-                <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span> Dashboard
-            </a>
-            <a href="{{ route('classes.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('classes.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
-                <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
-                {{ $role === 'student' ? 'Mata Pelajaran' : 'Kelola Mata Pelajaran' }}
-            </a>
-            <a href="{{ route('quizzes.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('quizzes.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
-                <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
-                {{ $role === 'student' ? 'Kuis' : 'Kelola Kuis' }}
-            </a>
-            <a href="{{ route('rapot.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('rapot.*') || request()->routeIs('classes.rapot*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
-                <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
-                {{ $role === 'student' ? 'Rapot Saya' : 'Rapot & Rekap Nilai' }}
-            </a>
-            @if ($role === 'teacher')
-                <a href="{{ route('teacher.attendance.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('teacher.attendance.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span> Absensi Guru
-                </a>
-            @endif
-            @if ($role === 'admin')
-                <a href="{{ route('admin.teacher-attendance.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.teacher-attendance.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span> Rekap Absensi Guru
-                </a>
-                <a href="{{ route('admin.kelas.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.kelas.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span> Kelas &amp; Wali Kelas
-                </a>
-                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-ink-700 text-white' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span> Manajemen Pengguna
-                </a>
-            @endif
+        @php
+            $navItems = [
+                [
+                    'label' => 'Dashboard',
+                    'route' => route('dashboard'),
+                    'active' => request()->routeIs('dashboard'),
+                    'show' => true,
+                ],
+                [
+                    'label' => $role === 'student' ? 'Mata Pelajaran' : 'Kelola Mata Pelajaran',
+                    'route' => route('classes.index'),
+                    'active' => (request()->routeIs('classes.*') && !request()->routeIs('classes.rapot*')) || request()->routeIs('meetings.*') || request()->routeIs('materials.*') || request()->routeIs('submissions.*'),
+                    'show' => true,
+                ],
+                [
+                    'label' => $role === 'student' ? 'Kuis' : 'Kelola Kuis',
+                    'route' => route('quizzes.index'),
+                    'active' => request()->routeIs('quizzes.*') || request()->routeIs('questions.*'),
+                    'show' => true,
+                ],
+                [
+                    'label' => $role === 'student' ? 'Rapot Saya' : 'Rapot & Rekap Nilai',
+                    'route' => route('rapot.index'),
+                    'active' => request()->routeIs('rapot.*') || request()->routeIs('classes.rapot*'),
+                    'show' => true,
+                ],
+                [
+                    'label' => 'Absensi Guru',
+                    'route' => route('teacher.attendance.index'),
+                    'active' => request()->routeIs('teacher.attendance.*'),
+                    'show' => $role === 'teacher',
+                ],
+                [
+                    'label' => 'Rekap Absensi Guru',
+                    'route' => route('admin.teacher-attendance.index'),
+                    'active' => request()->routeIs('admin.teacher-attendance.*'),
+                    'show' => $role === 'admin',
+                ],
+                [
+                    'label' => 'Kelas & Wali Kelas',
+                    'route' => route('admin.kelas.index'),
+                    'active' => request()->routeIs('admin.kelas.*'),
+                    'show' => $role === 'admin',
+                ],
+                [
+                    'label' => 'Manajemen Pengguna',
+                    'route' => route('admin.users.index'),
+                    'active' => request()->routeIs('admin.users.*'),
+                    'show' => $role === 'admin',
+                ],
+            ];
+
+            $activeNav = collect($navItems)->first(fn ($item) => $item['show'] && $item['active']);
+            $isPasswordActive = request()->routeIs('password.*');
+        @endphp
+
+        <nav class="flex-1 px-3 py-5 space-y-1.5 text-sm">
+            @foreach ($navItems as $item)
+                @if ($item['show'])
+                    <a href="{{ $item['route'] }}"
+                       @if ($item['active']) aria-current="page" @endif
+                       class="relative flex items-center justify-between px-3.5 py-2.5 rounded-lg transition-all duration-150 {{ $item['active'] ? 'bg-ink-700/90 text-white font-semibold shadow-sm ring-1 ring-gold-500/30' : 'text-ink-200 hover:bg-ink-800 hover:text-white' }}">
+                        @if ($item['active'])
+                            <span class="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-gold-500"></span>
+                        @endif
+                        <span class="flex items-center gap-2.5 truncate">
+                            <span class="w-2 h-2 rounded-full transition-all {{ $item['active'] ? 'bg-gold-400 ring-4 ring-gold-400/20' : 'bg-ink-600' }}"></span>
+                            <span class="truncate">{{ $item['label'] }}</span>
+                        </span>
+                        @if ($item['active'])
+                            <span class="ml-2 shrink-0 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gold-500/20 text-gold-400 border border-gold-500/30">
+                                Aktif
+                            </span>
+                        @endif
+                    </a>
+                @endif
+            @endforeach
         </nav>
 
         <div class="px-3 py-4 border-t border-ink-700/60">
@@ -63,12 +108,22 @@
                     @endif
                 </p>
             </div>
-            <a href="{{ route('password.edit') }}" class="w-full text-left flex items-center gap-2 px-3 py-2.5 rounded-lg text-ink-200 hover:bg-rose-500/20 hover:text-white text-sm">
-                Ubah Kata Sandi
+            <a href="{{ route('password.edit') }}"
+               @if ($isPasswordActive) aria-current="page" @endif
+               class="relative w-full text-left flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm transition-all {{ $isPasswordActive ? 'bg-ink-700/90 text-white font-semibold ring-1 ring-gold-500/30' : 'text-ink-200 hover:bg-rose-500/20 hover:text-white' }}">
+                @if ($isPasswordActive)
+                    <span class="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-gold-500"></span>
+                @endif
+                <span>Ubah Kata Sandi</span>
+                @if ($isPasswordActive)
+                    <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gold-500/20 text-gold-400 border border-gold-500/30">
+                        Aktif
+                    </span>
+                @endif
             </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="w-full text-left flex items-center gap-2 px-3 py-2.5 rounded-lg text-ink-200 hover:bg-rose-500/20 hover:text-white text-sm">
+                <button type="submit" class="w-full text-left flex items-center gap-2 px-3.5 py-2.5 rounded-lg text-ink-200 hover:bg-rose-500/20 hover:text-white text-sm">
                     Keluar
                 </button>
             </form>
@@ -78,11 +133,18 @@
     {{-- Main --}}
     <div class="flex-1 md:ml-64 min-w-0">
         <header class="h-16 bg-white border-b border-ink-100 flex items-center justify-between px-5 sticky top-0 z-20">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 min-w-0">
                 <button id="sidebar-toggle" class="md:hidden w-9 h-9 rounded-lg border border-ink-100 flex items-center justify-center text-ink-700">
                     &#9776;
                 </button>
-                <h1 class="font-display font-semibold text-lg text-ink-900">@yield('title', 'Dashboard')</h1>
+                @if ($activeNav || $isPasswordActive)
+                    <span class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md bg-ink-50 text-ink-700 border border-ink-100 shrink-0">
+                        <span class="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
+                        {{ $activeNav['label'] ?? 'Ubah Kata Sandi' }}
+                    </span>
+                    <span class="hidden sm:inline text-ink-200">/</span>
+                @endif
+                <h1 class="font-display font-semibold text-lg text-ink-900 truncate">@yield('title', 'Dashboard')</h1>
             </div>
             <div class="flex items-center gap-3">
                 <div class="text-right">
