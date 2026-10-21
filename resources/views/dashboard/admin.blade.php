@@ -8,10 +8,10 @@
         <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-gold-500/20"></div>
         <div class="absolute right-16 -bottom-12 w-32 h-32 rounded-full bg-gold-500/10"></div>
         <div class="relative">
-            <p class="text-xs font-medium text-gold-500 uppercase tracking-wider">LMS SMP Negeri 1 Lede</p>
+            <p class="text-xs font-medium text-gold-500 uppercase tracking-wider">LMS SMP Negeri 4 Lede</p>
             <h2 class="font-display font-semibold text-2xl mt-1">Selamat datang, {{ auth()->user()->name }}! 👋</h2>
             <p class="text-sm text-white/70 mt-1">Administrator Sistem</p>
-            <p class="text-sm text-white/80 mt-3 max-w-2xl">Pantau seluruh aktivitas pembelajaran, pengguna, dan kelas di SMP Negeri 1 Lede.</p>
+            <p class="text-sm text-white/80 mt-3 max-w-2xl">Pantau seluruh aktivitas pembelajaran, pengguna, dan kelas di SMP Negeri 4 Lede.</p>
         </div>
     </div>
 

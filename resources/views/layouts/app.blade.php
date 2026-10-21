@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') · EduEduka LMS</title>
+    <title>@yield('title', 'Dashboard') · SMP Negeri 4 Lede</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -14,9 +14,18 @@
     {{-- Sidebar --}}
     @php $role = auth()->user()->role; @endphp
     <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-ink-900 text-ink-100 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-200">
-        <div class="h-16 flex items-center gap-2 px-5 border-b border-ink-700/60">
-            <span class="w-8 h-8 rounded-lg bg-gold-500 text-ink-900 flex items-center justify-center font-display font-semibold text-sm">EL</span>
-            <span class="font-display font-semibold text-white">EduEduka LMS</span>
+        <div class="h-16 flex items-center gap-2.5 px-5 border-b border-ink-700/60">
+            <span class="w-9 h-9 rounded-lg bg-gold-500 text-ink-900 flex items-center justify-center shrink-0 shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 9v6"/>
+                </svg>
+            </span>
+            <div class="leading-tight">
+                <span class="block font-display font-semibold text-white text-sm">SMP Negeri 4 Lede</span>
+                <span class="block text-[10px] text-gold-400 font-medium tracking-wider uppercase">E-Learning LMS</span>
+            </div>
         </div>
 
         @php
@@ -193,7 +202,7 @@
         <div class="bg-ink-900 text-white px-4 py-3 rounded-t-xl flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <span class="w-6 h-6 rounded bg-gold-500 text-ink-900 flex items-center justify-center font-bold text-xs">AI</span>
-                <h3 class="font-medium text-sm">EduEduka AI Assistant</h3>
+                <h3 class="font-medium text-sm">SMP Negeri 4 Lede AI Assistant</h3>
             </div>
             <button id="ai-close-btn" class="text-ink-300 hover:text-white transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>

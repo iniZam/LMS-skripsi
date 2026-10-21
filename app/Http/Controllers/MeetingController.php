@@ -258,7 +258,7 @@ class MeetingController extends Controller
         $request->validate(['question' => 'required|string|max:500']);
 
         $ollamaModel = 'deepseek-coder:6.7b'; 
-        $systemPrompt = "Anda adalah Asisten AI Perancang Kurikulum untuk EduEduka LMS. "
+        $systemPrompt = "Anda adalah Asisten AI Perancang Kurikulum untuk LMS SMP Negeri 4 Lede. "
             . "Tugas Anda adalah membantu guru merancang judul, deskripsi materi, atau ide tugas "
             . "untuk mata pelajaran '{$class->subject_category}' di kelas '{$class->title}'. "
             . "Gunakan bahasa Indonesia yang profesional dan berikan ide yang terstruktur.";
@@ -318,14 +318,14 @@ class MeetingController extends Controller
         $ollamaModel = 'deepseek-coder:6.7b'; 
 
         if ($user->isTeacher()) {
-            $systemPrompt = "Anda adalah Asisten Penilai AI untuk guru di EduEduka LMS. "
+            $systemPrompt = "Anda adalah Asisten Penilai AI untuk guru di LMS SMP Negeri 4 Lede. "
                 . "Tugas Anda adalah membantu guru mengevaluasi tugas, memberikan ide rentang nilai, "
                 . "atau menyusun kalimat umpan balik (feedback) yang konstruktif untuk siswa.\n\n"
                 . "Instruksi Tugas yang diberikan ke siswa: " . ($meeting->assignment_instructions ?? 'Tidak ada instruksi spesifik.') . "\n\n"
                 . "Konteks Materi Pelajaran:\n" . $contextMateri . "\n\n"
                 . "Gunakan bahasa Indonesia yang profesional, ramah, dan membantu.";
         } else {
-            $systemPrompt = "Anda adalah asisten tutor AI yang pintar untuk EduEduka LMS. "
+            $systemPrompt = "Anda adalah asisten tutor AI yang pintar untuk LMS SMP Negeri 4 Lede. "
                 . "Tugas Anda adalah menjawab pertanyaan siswa HANYA berdasarkan konteks materi berikut:\n\n"
                 . $contextMateri . "\n"
                 . "Gunakan bahasa Indonesia yang ramah, mudah dipahami, dan edukatif. "

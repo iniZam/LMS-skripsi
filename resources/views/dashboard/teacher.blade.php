@@ -9,10 +9,10 @@
         <div class="absolute right-16 -bottom-12 w-32 h-32 rounded-full bg-gold-500/10"></div>
         <div class="relative flex flex-wrap items-center justify-between gap-4">
             <div>
-                <p class="text-xs font-medium text-gold-500 uppercase tracking-wider">LMS SMP Negeri 1 Lede</p>
+                <p class="text-xs font-medium text-gold-500 uppercase tracking-wider">LMS SMP Negeri 4 Lede</p>
                 <h2 class="font-display font-semibold text-2xl mt-1">Selamat datang, {{ auth()->user()->name }}! 👋</h2>
                 <p class="text-sm text-white/70 mt-1">Pengajar &middot; NIP: {{ auth()->user()->nip_nis }}</p>
-                <p class="text-sm text-white/80 mt-3 max-w-2xl">Terima kasih telah membimbing siswa-siswi SMP Negeri 1 Lede. Kelola materi, tugas, kuis, dan absensi kelas Anda dengan mudah di sini.</p>
+                <p class="text-sm text-white/80 mt-3 max-w-2xl">Terima kasih telah membimbing siswa-siswi SMP Negeri 4 Lede. Kelola materi, tugas, kuis, dan absensi kelas Anda dengan mudah di sini.</p>
             </div>
             <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-xl p-4 min-w-[230px]">
                 <p class="text-xs text-gold-400 font-medium uppercase">Presensi Hari Ini</p>

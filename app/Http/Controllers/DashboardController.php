@@ -137,7 +137,7 @@ class DashboardController extends Controller
             $ollamaModel = $ollamaModel ?: 'deepseek-coder:6.7b';
         }
 
-        $systemPrompt = "Anda adalah Asisten AI untuk platform EduEduka LMS. "
+        $systemPrompt = "Anda adalah Asisten AI untuk platform LMS SMP Negeri 4 Lede. "
             . "Anda sedang berbicara dengan {$userName} ({$userRole}). "
             . "Tugas Anda adalah membantu pengguna dalam proses pembelajaran, manajemen kelas, materi, dan tugas. "
             . "Berikan jawaban yang jelas, ramah, edukatif, dan ringkas dalam bahasa Indonesia.";
