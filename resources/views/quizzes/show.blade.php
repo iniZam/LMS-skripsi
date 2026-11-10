@@ -27,6 +27,14 @@
                 Anda sudah menyelesaikan {{ strtolower($quiz->shortTypeLabel()) }} ini.
             </div>
             <a href="{{ route('quizzes.result', [$quiz, $attempt]) }}" class="bg-ink-900 hover:bg-ink-700 text-white font-medium px-6 py-3 rounded-lg inline-block">Lihat Nilai</a>
+        @elseif ($attempt && !$attempt->completed_at)
+            <div class="bg-gold-50 border border-gold-200 text-gold-800 p-4 rounded-lg mb-4 text-left">
+                <p class="font-bold text-sm">Pengerjaan sedang berlangsung!</p>
+                <p class="text-xs text-gold-700 mt-1">Anda sudah memulai {{ strtolower($quiz->shortTypeLabel()) }} ini sebelumnya. Silakan klik tombol di bawah untuk melanjutkan pengerjaan.</p>
+            </div>
+            <a href="{{ route('quizzes.take', [$quiz, $attempt]) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 font-bold px-8 py-3 rounded-lg text-lg shadow-sm inline-block">
+                Lanjutkan Kerjakan {{ $quiz->shortTypeLabel() }} &rarr;
+            </a>
         @else
             <div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-lg mb-6 text-left">
                 <strong>Peringatan:</strong> Waktu akan mulai berjalan saat Anda menekan tombol di bawah. Jika keluar sebelum selesai, nilai akan tersimpan otomatis saat waktu habis.

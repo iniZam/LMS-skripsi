@@ -202,7 +202,7 @@ class ExampleTest extends TestCase
         $response = $this->actingAs($student)->get(route('dashboard'));
 
         $response->assertOk()
-            ->assertSee('SMP Negeri 1 Lede')
+            ->assertSee('SMP Negeri 4 Lede')
             ->assertSee('Selamat datang,')
             ->assertSee($student->name)
             ->assertSee('75%')
@@ -301,6 +301,58 @@ class ExampleTest extends TestCase
         $studentResponse->assertOk()
             ->assertSee('Fisika - 9A')
             ->assertSee('85');
+    }
+
+    public function test_in_progress_quiz_attempt_does_not_crash_and_can_be_continued(): void
+    {
+        $teacher = \App\Models\User::factory()->create(['role' => \App\Models\User::ROLE_TEACHER]);
+        $student = \App\Models\User::factory()->create(['role' => \App\Models\User::ROLE_STUDENT]);
+
+        $classRoom = \App\Models\ClassRoom::create([
+            'code' => 'MAT-7A',
+            'title' => 'Matematika - 7A',
+            'subject_category' => 'Matematika',
+            'teacher_id' => $teacher->id,
+            'status' => 'active',
+            'academic_year' => '2026/2027',
+        ]);
+        $classRoom->students()->attach($student->id);
+
+        $quiz = \App\Models\Quiz::create([
+            'class_id' => $classRoom->id,
+            'type' => \App\Models\Quiz::TYPE_UTS,
+            'approval_status' => \App\Models\Quiz::STATUS_APPROVED,
+            'title' => 'UTS Matematika',
+            'duration_minutes' => 60,
+        ]);
+
+        // Student creates / starts attempt
+        $attempt = \App\Models\QuizAttempt::create([
+            'quiz_id' => $quiz->id,
+            'student_id' => $student->id,
+            'started_at' => now(),
+            'completed_at' => null,
+            'score' => null,
+        ]);
+
+        // 1. quizzes.show shows "Lanjutkan Kerjakan"
+        $responseShow = $this->actingAs($student)->get(route('quizzes.show', $quiz));
+        $responseShow->assertOk()
+            ->assertSee('Lanjutkan Kerjakan')
+            ->assertSee(route('quizzes.take', [$quiz, $attempt]));
+
+        // 2. quizzes.start redirects in-progress student back to quizzes.take
+        $responseStart = $this->actingAs($student)->post(route('quizzes.start', $quiz));
+        $responseStart->assertRedirect(route('quizzes.take', [$quiz, $attempt]));
+
+        // 3. quizzes.result redirects in-progress student to quizzes.take
+        $responseResultStudent = $this->actingAs($student)->get(route('quizzes.result', [$quiz, $attempt]));
+        $responseResultStudent->assertRedirect(route('quizzes.take', [$quiz, $attempt]));
+
+        // 4. quizzes.result accessed by teacher displays safely without null error
+        $responseResultTeacher = $this->actingAs($teacher)->get(route('quizzes.result', [$quiz, $attempt]));
+        $responseResultTeacher->assertOk()
+            ->assertSee('Sedang dalam proses pengerjaan');
     }
 }
 

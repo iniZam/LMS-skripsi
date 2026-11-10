@@ -97,6 +97,10 @@
                                             <a href="{{ route('quizzes.result', [$exam, $myAttempt]) }}" class="bg-mint-100 hover:bg-mint-200 text-mint-700 text-xs font-medium px-3.5 py-2 rounded-lg transition">
                                                 Lihat Nilai
                                             </a>
+                                        @elseif ($myAttempt && ! $myAttempt->completed_at)
+                                            <a href="{{ route('quizzes.take', [$exam, $myAttempt]) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-bold px-3.5 py-2 rounded-lg shadow-sm transition">
+                                                Lanjutkan {{ $exam->shortTypeLabel() }} &rarr;
+                                            </a>
                                         @else
                                             <a href="{{ route('quizzes.show', $exam) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-bold px-3.5 py-2 rounded-lg shadow-sm transition">
                                                 Kerjakan {{ $exam->shortTypeLabel() }}

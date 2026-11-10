@@ -187,7 +187,7 @@
 
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-xs text-ink-500">
                                     <span>📝 {{ $quiz->questions_count }} Soal</span>
-                                    <span>✅ Selesai: {{ $attempt->completed_at->format('d M Y, H:i') }}</span>
+                                    <span>✅ Selesai: {{ $attempt?->completed_at ? $attempt->completed_at->format('d M Y, H:i') : '-' }}</span>
                                 </div>
                             </div>
                         </div>

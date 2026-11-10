@@ -328,7 +328,10 @@ class QuizController extends Controller
 
         $existingAttempt = $quiz->attempts()->where('student_id', $user->id)->first();
         if ($existingAttempt) {
-            return redirect()->route('quizzes.result', [$quiz, $existingAttempt]);
+            if ($existingAttempt->completed_at) {
+                return redirect()->route('quizzes.result', [$quiz, $existingAttempt]);
+            }
+            return redirect()->route('quizzes.take', [$quiz, $existingAttempt]);
         }
 
         $attempt = $quiz->attempts()->create([
@@ -397,6 +400,11 @@ class QuizController extends Controller
     {
         abort_unless(auth()->id() === $attempt->student_id || auth()->user()->isTeacher() || auth()->user()->isAdmin(), 403);
         
+        // Jika siswa belum menyelesaikan pengerjaan, arahkan kembali ke lembar pengerjaan
+        if (! $attempt->completed_at && auth()->id() === $attempt->student_id) {
+            return redirect()->route('quizzes.take', [$quiz, $attempt]);
+        }
+
         return view('quizzes.result', compact('quiz', 'attempt'));
     }
 }

@@ -96,6 +96,8 @@
                             @php $myAttempt = $q->attempts()->where('student_id', $user->id)->first(); @endphp
                             @if($myAttempt && $myAttempt->completed_at)
                                 <a href="{{ route('quizzes.result', [$q, $myAttempt]) }}" class="bg-mint-100 hover:bg-mint-200 text-mint-700 text-xs font-medium px-4 py-2 rounded-lg transition">Lihat Nilai</a>
+                            @elseif($myAttempt && ! $myAttempt->completed_at)
+                                <a href="{{ route('quizzes.take', [$q, $myAttempt]) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition">Lanjutkan {{ $q->shortTypeLabel() }} &rarr;</a>
                             @else
                                 <a href="{{ route('quizzes.show', $q) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition">Kerjakan {{ $q->shortTypeLabel() }}</a>
                             @endif
