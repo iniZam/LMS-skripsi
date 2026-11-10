@@ -31,11 +31,96 @@
     </div>
 
     <div class="grid lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-2 space-y-6">
+            {{-- BAGIAN UJIAN SEMESTER (UTS & UAS) --}}
+            @php
+                $visibleExams = $class->quizzes
+                    ->whereIn('type', ['uts', 'uas'])
+                    ->filter(fn ($exam) => !$user->isStudent() || $exam->approval_status === 'approved');
+            @endphp
+            <div class="bg-white rounded-xl border border-ink-100 p-5">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h3 class="font-display font-semibold text-ink-900">Ujian Semester (UTS &amp; UAS)</h3>
+                        <p class="text-xs text-ink-400 mt-0.5">
+                            {{ $user->isStudent() ? 'Daftar UTS dan UAS yang telah dirilis untuk mata pelajaran ini.' : 'Tambahkan soal UTS atau UAS. Ujian akan tampil ke siswa setelah mendapat ACC Admin.' }}
+                        </p>
+                    </div>
+                    @if ($user->isAdmin() || ($user->isTeacher() && $class->teacher_id === $user->id))
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('exams.create', ['class_id' => $class->id, 'type' => 'uts']) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                                + Tambah UTS
+                            </a>
+                            <a href="{{ route('exams.create', ['class_id' => $class->id, 'type' => 'uas']) }}" class="bg-ink-900 hover:bg-ink-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                                + Tambah UAS
+                            </a>
+                        </div>
+                    @endif
+                </div>
+
+                @if ($visibleExams->isNotEmpty())
+                    <div class="space-y-3">
+                        @foreach ($visibleExams as $exam)
+                            @php
+                                $typeBadge = $exam->type === 'uts' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700';
+                                $approvalBadge = match ($exam->approval_status) {
+                                    'approved' => 'bg-mint-100 text-mint-700',
+                                    'pending' => 'bg-gold-100 text-gold-600',
+                                    'rejected' => 'bg-rose-100 text-rose-500',
+                                    default => 'bg-ink-100 text-ink-600',
+                                };
+                            @endphp
+                            <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-ink-100 bg-ink-50/40">
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                                        <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full {{ $typeBadge }}">
+                                            {{ $exam->shortTypeLabel() }}
+                                        </span>
+                                        @if (!$user->isStudent())
+                                            <span class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full {{ $approvalBadge }}">
+                                                {{ $exam->approvalStatusLabel() }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="font-medium text-ink-900 text-sm">{{ $exam->title }}</p>
+                                    <p class="text-xs text-ink-400 mt-0.5">
+                                        {{ $exam->duration_minutes }} Menit &middot; {{ $exam->questions->count() }} Soal
+                                        @if ($exam->deadline)
+                                            &middot; Batas: {{ $exam->deadline->format('d M Y, H:i') }}
+                                        @endif
+                                    </p>
+                                </div>
+                                <div>
+                                    @if ($user->isStudent())
+                                        @php $myAttempt = $exam->attempts()->where('student_id', $user->id)->first(); @endphp
+                                        @if ($myAttempt && $myAttempt->completed_at)
+                                            <a href="{{ route('quizzes.result', [$exam, $myAttempt]) }}" class="bg-mint-100 hover:bg-mint-200 text-mint-700 text-xs font-medium px-3.5 py-2 rounded-lg transition">
+                                                Lihat Nilai
+                                            </a>
+                                        @else
+                                            <a href="{{ route('quizzes.show', $exam) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-bold px-3.5 py-2 rounded-lg shadow-sm transition">
+                                                Kerjakan {{ $exam->shortTypeLabel() }}
+                                            </a>
+                                        @endif
+                                    @else
+                                        <a href="{{ route('quizzes.manage', $exam) }}" class="bg-ink-900 hover:bg-ink-700 text-white text-xs font-medium px-3.5 py-2 rounded-lg transition">
+                                            Kelola Soal
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-xs text-ink-400 italic">Belum ada UTS atau UAS pada mata pelajaran ini.</p>
+                @endif
+            </div>
+
+            <div>
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-display font-semibold text-ink-900">Pertemuan</h3>
                 @if ($user->isAdmin() || ($user->isTeacher() && $class->teacher_id === $user->id))
-        <div class="mt-6 flex flex-wrap gap-3">
+        <div class="flex flex-wrap gap-3">
             <a href="{{ route('meetings.create', $class) }}" class="bg-ink-900 hover:bg-ink-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
                 + Pertemuan Baru
             </a>
@@ -70,6 +155,7 @@
                 @empty
                     <p class="text-sm text-ink-400 bg-white rounded-xl border border-ink-100 p-6">Belum ada pertemuan pada kelas ini.</p>
                 @endforelse
+            </div>
             </div>
         </div>
 

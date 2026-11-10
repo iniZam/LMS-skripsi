@@ -47,6 +47,16 @@ class ClassRoom extends Model
         return $this->hasMany(Meeting::class, 'class_id')->orderBy('meeting_number');
     }
 
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class, 'class_id');
+    }
+
+    public function exams(): HasMany
+    {
+        return $this->hasMany(Quiz::class, 'class_id')->whereIn('type', [Quiz::TYPE_UTS, Quiz::TYPE_UAS]);
+    }
+
     public function statusLabel(): string
     {
         return match ($this->status) {

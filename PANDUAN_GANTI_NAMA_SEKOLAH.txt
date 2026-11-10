@@ -1,0 +1,49 @@
+DAFTAR FILE UNTUK MENGGANTI NAMA SEKOLAH DI LMS
+=====================================================
+
+Jika ingin mengganti nama sekolah (saat ini: "SMP Negeri 4 Lede"), berikut adalah lokasi file dan baris yang perlu disesuaikan:
+
+1. TEMPLATE UTAMA & SIDEBAR
+-----------------------------------------------------
+File: resources/views/layouts/app.blade.php
+- Baris 6   : Judul tab browser (<title>... · SMP Negeri 4 Lede</title>)
+- Baris 26  : Nama sekolah di sidebar sebelah kiri
+- Baris 205 : Judul pop-up Asisten AI ("SMP Negeri 4 Lede AI Assistant")
+
+
+2. HALAMAN LOGIN
+-----------------------------------------------------
+File: resources/views/layouts/guest.blade.php
+- Baris 6   : Judul tab browser halaman login (<title>... · SMP Negeri 4 Lede</title>)
+- Baris 22  : Judul besar di atas form login ("SMP Negeri 4 Lede")
+- Baris 24  : Subtitle keterangan ("(LMS) SMP Negeri 4 Lede")
+
+File: resources/views/auth/login.blade.php
+- Baris 3   : Title halaman login ("Masuk · SMP Negeri 4 Lede")
+- Baris 6   : Judul kartu login ("Masuk ke Portal SMP Negeri 4 Lede")
+- Baris 31  : Pesan bantuan bawah ("Hubungi admin SMP Negeri 4 Lede untuk didaftarkan.")
+
+
+3. BANNER DASHBOARD PENGGUNA
+-----------------------------------------------------
+File: resources/views/dashboard/admin.blade.php
+- Baris 11  : Label kecil di atas ucapan selamat datang ("LMS SMP Negeri 4 Lede")
+- Baris 14  : Deskripsi ucapan selamat datang admin ("...di SMP Negeri 4 Lede.")
+
+File: resources/views/dashboard/teacher.blade.php
+- Baris 12  : Label kecil di atas ucapan selamat datang guru ("LMS SMP Negeri 4 Lede")
+- Baris 15  : Deskripsi ucapan selamat datang guru ("...siswa-siswi SMP Negeri 4 Lede.")
+
+File: resources/views/dashboard/student.blade.php
+- Baris 11  : Label kecil di atas ucapan selamat datang siswa ("LMS SMP Negeri 4 Lede")
+
+
+4. PROMPT ASISTEN AI (BACKEND CONTROLLER)
+-----------------------------------------------------
+File: app/Http/Controllers/DashboardController.php
+- Baris 140 : Prompt sistem AI Dashboard ("...platform LMS SMP Negeri 4 Lede.")
+
+File: app/Http/Controllers/MeetingController.php
+- Baris 261 : Prompt AI Designer kurikulum ("...LMS SMP Negeri 4 Lede.")
+- Baris 321 : Prompt AI Penilai Tugas ("...guru di LMS SMP Negeri 4 Lede.")
+- Baris 328 : Prompt AI Tutor Siswa ("...tutor AI yang pintar untuk LMS SMP Negeri 4 Lede.")

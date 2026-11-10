@@ -94,7 +94,7 @@ class ClassRoomController extends Controller
             abort_unless($class->teacher_id === $user->id, 403);
         }
 
-        $class->load(['teacher', 'students', 'meetings.materials', 'meetings.submissions']);
+        $class->load(['teacher', 'students', 'meetings.materials', 'meetings.submissions', 'quizzes.questions', 'quizzes.meeting']);
 
         $availableStudents = null;
         if ($user->isAdmin()) {
@@ -354,7 +354,8 @@ class ClassRoomController extends Controller
             $headerRow[] = 'Rata-rata Tugas';
 
             foreach ($quizzes as $idx => $q) {
-                $headerRow[] = 'Kuis ' . ($idx + 1) . ' (P' . $q->meeting->meeting_number . ')';
+                $pLabel = $q->meeting ? 'P' . $q->meeting->meeting_number : $q->shortTypeLabel();
+                $headerRow[] = $q->shortTypeLabel() . ' ' . ($idx + 1) . ' (' . $pLabel . ')';
             }
             $headerRow[] = 'Rata-rata Kuis';
 
@@ -408,8 +409,12 @@ class ClassRoomController extends Controller
         $meetings = $class->meetings()->orderBy('meeting_number')->get();
         $assignmentMeetings = $meetings->where('has_assignment', true)->values();
         $quizzes = Quiz::with('meeting')
-            ->whereIn('meeting_id', $meetings->pluck('id'))
-            ->orderBy('meeting_id')
+            ->where(function ($q) use ($class, $meetings) {
+                $q->where('class_id', $class->id)
+                  ->orWhereIn('meeting_id', $meetings->pluck('id'));
+            })
+            ->where('approval_status', Quiz::STATUS_APPROVED)
+            ->orderBy('id')
             ->get();
 
         $studentsQuery = $class->students()->orderBy('name');

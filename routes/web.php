@@ -43,17 +43,27 @@ Route::middleware('auth')->group(function () {
     });
 
     // ==========================================
-    // DAFTAR & MANAJEMEN KUIS
+    // DAFTAR & MANAJEMEN KUIS / UTS / UAS
     // ==========================================
     Route::get('/quizzes', [\App\Http\Controllers\QuizController::class, 'index'])->name('quizzes.index');
 
     Route::middleware('role:admin,teacher')->group(function () {
+        // Pembuatan UTS / UAS (berdasarkan Mata Pelajaran / Kelas)
+        Route::get('/exams/create', [\App\Http\Controllers\QuizController::class, 'createExam'])->name('exams.create');
+        Route::post('/exams', [\App\Http\Controllers\QuizController::class, 'storeExam'])->name('exams.store');
+
+        // Pembuatan Kuis / UTS / UAS pada Pertemuan
         Route::get('/meetings/{meeting}/quizzes/create', [\App\Http\Controllers\QuizController::class, 'create'])->name('quizzes.create');
         Route::post('/meetings/{meeting}/quizzes', [\App\Http\Controllers\QuizController::class, 'store'])->name('quizzes.store');
         
         Route::get('/quizzes/{quiz}/manage', [\App\Http\Controllers\QuizController::class, 'manage'])->name('quizzes.manage');
         Route::post('/quizzes/{quiz}/questions', [\App\Http\Controllers\QuizController::class, 'storeQuestion'])->name('questions.store');
         Route::delete('/questions/{question}', [\App\Http\Controllers\QuizController::class, 'destroyQuestion'])->name('questions.destroy');
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::put('/quizzes/{quiz}/approve', [\App\Http\Controllers\QuizController::class, 'approve'])->name('quizzes.approve');
+        Route::put('/quizzes/{quiz}/reject', [\App\Http\Controllers\QuizController::class, 'reject'])->name('quizzes.reject');
     });
 
     // ==========================================

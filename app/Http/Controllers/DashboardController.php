@@ -64,10 +64,13 @@ class DashboardController extends Controller
             ->count();
 
         // Persentase kehadiran siswa pada kelas-kelas yang diampu guru
-        $meetingIds = Meeting::whereIn('class_id', $classes->pluck('id'))->pluck('id');
+        $classIds = $classes->pluck('id');
+        $meetingIds = Meeting::whereIn('class_id', $classIds)->pluck('id');
         $attendancePercent = $this->attendancePercent(Attendance::whereIn('meeting_id', $meetingIds));
 
-        $totalQuizzes = Quiz::whereIn('meeting_id', $meetingIds)->count();
+        $totalQuizzes = Quiz::where(function ($q) use ($classIds, $meetingIds) {
+            $q->whereIn('class_id', $classIds)->orWhereIn('meeting_id', $meetingIds);
+        })->count();
 
         $today = Carbon::now('Asia/Makassar')->toDateString();
         $todayAttendance = TeacherAttendance::where('teacher_id', $user->id)->whereDate('date', $today)->first();
@@ -84,9 +87,13 @@ class DashboardController extends Controller
         // Persentase kehadiran siswa yang sedang login
         $attendancePercent = $this->attendancePercent(Attendance::where('student_id', $user->id));
 
-        // Kuis pada kelas yang diikuti dan belum diselesaikan oleh siswa
-        $meetingIds = Meeting::whereIn('class_id', $enrolled->pluck('id'))->pluck('id');
-        $quizzesInClasses = Quiz::whereIn('meeting_id', $meetingIds);
+        // Kuis & Ujian (yang sudah di-ACC) pada kelas yang diikuti dan belum diselesaikan oleh siswa
+        $classIds = $enrolled->pluck('id');
+        $meetingIds = Meeting::whereIn('class_id', $classIds)->pluck('id');
+        $quizzesInClasses = Quiz::where('approval_status', Quiz::STATUS_APPROVED)
+            ->where(function ($q) use ($classIds, $meetingIds) {
+                $q->whereIn('class_id', $classIds)->orWhereIn('meeting_id', $meetingIds);
+            });
         $totalQuizzes = (clone $quizzesInClasses)->count();
         $pendingQuizzes = (clone $quizzesInClasses)
             ->whereDoesntHave('attempts', fn ($q) => $q->where('student_id', $user->id)->whereNotNull('completed_at'))

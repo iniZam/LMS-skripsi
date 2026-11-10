@@ -43,9 +43,9 @@
                     'show' => true,
                 ],
                 [
-                    'label' => $role === 'student' ? 'Kuis' : 'Kelola Kuis',
+                    'label' => $role === 'student' ? 'Kuis & Ujian' : 'Kelola Kuis & Ujian',
                     'route' => route('quizzes.index'),
-                    'active' => request()->routeIs('quizzes.*') || request()->routeIs('questions.*'),
+                    'active' => request()->routeIs('quizzes.*') || request()->routeIs('questions.*') || request()->routeIs('exams.*'),
                     'show' => true,
                 ],
                 [

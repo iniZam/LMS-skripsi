@@ -93,10 +93,14 @@
                                 Rata Tugas
                             </th>
 
-                            {{-- Kolom Kuis --}}
+                            {{-- Kolom Kuis / UTS / UAS --}}
                             @foreach ($quizzes as $idx => $q)
                                 <th class="px-3 py-3 font-semibold text-center bg-purple-50/40 text-purple-800" title="{{ $q->title }}">
-                                    K{{ $idx + 1 }} (P{{ $q->meeting->meeting_number }})
+                                    @if ($q->isExam())
+                                        {{ $q->shortTypeLabel() }}
+                                    @else
+                                        K{{ $idx + 1 }}{{ $q->meeting ? ' (P' . $q->meeting->meeting_number . ')' : '' }}
+                                    @endif
                                 </th>
                             @endforeach
                             <th class="px-3 py-3 font-bold text-center bg-purple-100/60 text-purple-900 border-r border-ink-100">

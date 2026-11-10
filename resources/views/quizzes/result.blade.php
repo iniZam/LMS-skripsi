@@ -1,11 +1,17 @@
 @extends('layouts.app')
-@section('title', 'Nilai Kuis: ' . $quiz->title)
+@section('title', 'Nilai ' . $quiz->shortTypeLabel() . ': ' . $quiz->title)
 @section('content')
 <div class="max-w-2xl mx-auto mt-8">
-    <a href="{{ route('meetings.show', $quiz->meeting_id) }}" class="text-sm text-ink-400 hover:text-ink-700 mb-4 inline-block">&larr; Kembali ke Pertemuan</a>
+    @if ($quiz->meeting_id)
+        <a href="{{ route('meetings.show', $quiz->meeting_id) }}" class="text-sm text-ink-400 hover:text-ink-700 mb-4 inline-block">&larr; Kembali ke Pertemuan</a>
+    @elseif ($quiz->class_id)
+        <a href="{{ route('classes.show', $quiz->class_id) }}" class="text-sm text-ink-400 hover:text-ink-700 mb-4 inline-block">&larr; Kembali ke Mata Pelajaran</a>
+    @else
+        <a href="{{ route('quizzes.index') }}" class="text-sm text-ink-400 hover:text-ink-700 mb-4 inline-block">&larr; Kembali ke Daftar Kuis &amp; Ujian</a>
+    @endif
     
     <div class="bg-white rounded-xl border border-ink-100 p-8 shadow-sm text-center">
-        <h2 class="font-display font-semibold text-xl text-ink-900 mb-6">Hasil Pengerjaan Kuis</h2>
+        <h2 class="font-display font-semibold text-xl text-ink-900 mb-6">Hasil Pengerjaan {{ $quiz->shortTypeLabel() }}</h2>
         
         <div class="w-32 h-32 mx-auto rounded-full border-4 flex items-center justify-center mb-4 {{ $attempt->score >= 70 ? 'border-mint-500 text-mint-500' : 'border-rose-500 text-rose-500' }}">
             <span class="font-display font-bold text-4xl">{{ round($attempt->score) }}</span>

@@ -2,8 +2,17 @@
 @section('title', $quiz->title)
 @section('content')
 <div class="max-w-2xl mx-auto mt-8">
-    <a href="{{ route('meetings.show', $quiz->meeting_id) }}" class="text-sm text-ink-400 hover:text-ink-700 mb-4 inline-block">&larr; Kembali ke Pertemuan</a>
+    @if ($quiz->meeting_id)
+        <a href="{{ route('meetings.show', $quiz->meeting_id) }}" class="text-sm text-ink-400 hover:text-ink-700 mb-4 inline-block">&larr; Kembali ke Pertemuan</a>
+    @elseif ($quiz->class_id)
+        <a href="{{ route('classes.show', $quiz->class_id) }}" class="text-sm text-ink-400 hover:text-ink-700 mb-4 inline-block">&larr; Kembali ke Mata Pelajaran</a>
+    @else
+        <a href="{{ route('quizzes.index') }}" class="text-sm text-ink-400 hover:text-ink-700 mb-4 inline-block">&larr; Kembali ke Daftar Kuis &amp; Ujian</a>
+    @endif
     <div class="bg-white rounded-xl border border-ink-100 p-8 shadow-sm text-center">
+        <span class="inline-block text-xs font-bold uppercase px-3 py-1 rounded-full bg-gold-100 text-gold-600 mb-2">
+            {{ $quiz->typeLabel() }}
+        </span>
         <h2 class="font-display font-semibold text-2xl text-ink-900 mb-2">{{ $quiz->title }}</h2>
         <p class="text-sm text-ink-600 mb-6">{{ $quiz->description }}</p>
         
@@ -15,7 +24,7 @@
 
         @if ($attempt && $attempt->completed_at)
             <div class="bg-mint-50 border border-mint-200 text-mint-800 p-4 rounded-lg mb-4">
-                Anda sudah menyelesaikan kuis ini.
+                Anda sudah menyelesaikan {{ strtolower($quiz->shortTypeLabel()) }} ini.
             </div>
             <a href="{{ route('quizzes.result', [$quiz, $attempt]) }}" class="bg-ink-900 hover:bg-ink-700 text-white font-medium px-6 py-3 rounded-lg inline-block">Lihat Nilai</a>
         @else
@@ -24,8 +33,8 @@
             </div>
             <form action="{{ route('quizzes.start', $quiz) }}" method="POST">
                 @csrf
-                <button type="submit" class="bg-gold-500 hover:bg-gold-600 text-ink-900 font-bold px-8 py-3 rounded-lg text-lg shadow-sm">
-                    Mulai Kerjakan Kuis
+                <button type="submit" class="bg-gold-500 hover:bg-gold-600 text-ink-900 font-bold px-8 py-3 rounded-lg text-lg shadow-sm cursor-pointer">
+                    Mulai Kerjakan {{ $quiz->shortTypeLabel() }}
                 </button>
             </form>
         @endif

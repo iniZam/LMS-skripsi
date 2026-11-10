@@ -40,21 +40,55 @@
             </div>
         @endif
 
-        <!-- TAMPILAN KUIS (Dipindah ke dalam blok ini agar rapi) -->
-        <div class="mt-6 border-t border-ink-100 pt-5 flex items-center justify-between">
-            <h3 class="text-sm font-medium text-ink-700">Kuis Interaktif</h3>
+        <!-- TAMPILAN KUIS / UTS / UAS -->
+        @php
+            $visibleQuizzes = $meeting->quizzes->filter(fn ($q) => !$user->isStudent() || $q->isApproved());
+        @endphp
+        <div class="mt-6 border-t border-ink-100 pt-5 flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-sm font-medium text-ink-700">Kuis &amp; Ujian (UTS / UAS)</h3>
             @if ($user->isAdmin() || $user->isTeacher())
-                <a href="{{ route('quizzes.create', $meeting) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-medium px-3 py-1.5 rounded-lg inline-flex items-center transition">
-                    + Buat Kuis Baru
-                </a>
+                <div class="flex flex-wrap items-center gap-2">
+                    <a href="{{ route('quizzes.create', [$meeting, 'type' => 'quiz']) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-medium px-3 py-1.5 rounded-lg inline-flex items-center transition">
+                        + Buat Kuis
+                    </a>
+                    <a href="{{ route('quizzes.create', [$meeting, 'type' => 'uts']) }}" class="bg-ink-900 hover:bg-ink-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg inline-flex items-center transition">
+                        + Buat UTS
+                    </a>
+                    <a href="{{ route('quizzes.create', [$meeting, 'type' => 'uas']) }}" class="bg-ink-900 hover:bg-ink-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg inline-flex items-center transition">
+                        + Buat UAS
+                    </a>
+                </div>
             @endif
         </div>
         
-        @if ($meeting->quizzes->count() > 0)
+        @if ($visibleQuizzes->count() > 0)
             <div class="mt-3 space-y-3">
-                @foreach($meeting->quizzes as $q)
-                    <div class="flex items-center justify-between p-4 border border-ink-100 rounded-lg bg-ink-50/50">
+                @foreach($visibleQuizzes as $q)
+                    @php
+                        $typeBadge = match ($q->type) {
+                            'uts' => 'bg-blue-100 text-blue-700',
+                            'uas' => 'bg-purple-100 text-purple-700',
+                            default => 'bg-gold-100 text-gold-600',
+                        };
+                        $approvalBadge = match ($q->approval_status) {
+                            'approved' => 'bg-mint-100 text-mint-700',
+                            'pending' => 'bg-gold-100 text-gold-600',
+                            'rejected' => 'bg-rose-100 text-rose-500',
+                            default => 'bg-ink-100 text-ink-600',
+                        };
+                    @endphp
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 border border-ink-100 rounded-lg bg-ink-50/50">
                         <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full {{ $typeBadge }}">
+                                    {{ $q->shortTypeLabel() }}
+                                </span>
+                                @if (!$user->isStudent() && $q->isExam())
+                                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full {{ $approvalBadge }}">
+                                        {{ $q->approvalStatusLabel() }}
+                                    </span>
+                                @endif
+                            </div>
                             <h4 class="font-medium text-ink-900">{{ $q->title }}</h4>
                             <p class="text-xs text-ink-500 mt-0.5">{{ $q->duration_minutes }} Menit &middot; {{ $q->questions->count() }} Soal</p>
                         </div>
@@ -63,7 +97,7 @@
                             @if($myAttempt && $myAttempt->completed_at)
                                 <a href="{{ route('quizzes.result', [$q, $myAttempt]) }}" class="bg-mint-100 hover:bg-mint-200 text-mint-700 text-xs font-medium px-4 py-2 rounded-lg transition">Lihat Nilai</a>
                             @else
-                                <a href="{{ route('quizzes.show', $q) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition">Kerjakan Kuis</a>
+                                <a href="{{ route('quizzes.show', $q) }}" class="bg-gold-500 hover:bg-gold-600 text-ink-900 text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition">Kerjakan {{ $q->shortTypeLabel() }}</a>
                             @endif
                         @else
                             <a href="{{ route('quizzes.manage', $q) }}" class="bg-ink-900 text-white hover:bg-ink-700 text-xs font-medium px-4 py-2 rounded-lg transition">Kelola Soal</a>
@@ -73,7 +107,7 @@
             </div>
         @else
             @if($user->isStudent())
-                <p class="text-sm text-ink-400 mt-2 italic">Belum ada kuis untuk pertemuan ini.</p>
+                <p class="text-sm text-ink-400 mt-2 italic">Belum ada kuis atau ujian untuk pertemuan ini.</p>
             @endif
         @endif
     </div>
